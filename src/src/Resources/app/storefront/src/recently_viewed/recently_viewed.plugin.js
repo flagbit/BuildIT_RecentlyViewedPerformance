@@ -25,7 +25,6 @@ export default class RecentlyViewedPlugin extends Plugin {
 			if (document.querySelector('meta[itemprop="lowPrice"]')) {
 				const priceRaw = document.querySelector('meta[itemprop="lowPrice"]').content;
 				for (let priceElement of document.querySelectorAll('.product-block-prices-cell div')) {
-					console.log(priceElement);
 					if (priceElement.innerHTML.includes(priceRaw)) {
 						price = this.el.dataset.fromText + ' ' + priceElement.innerHTML.trim();
 					}
