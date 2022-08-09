@@ -1,0 +1,82 @@
+# This is a basic workflow to help you get started with Actions
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    env:
+      # to change!
+      NAME: BuildIT_RecentlyViewedPerformance
+      PKG_NAME: BuildIT_RecentlyViewedPerformance
+      EXPORT_NAME: BuildIT_RecentlyViewedPerformance.zip
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - uses: mstachniuk/ci-skip@v1
+        with:
+          commit-filter: 'AutomatedRelease;Update'
+          commit-filter-separator: ';'
+      - name: Setup
+        run: |
+          echo ${{ env.EXPORT_NAME }}
+          sudo apt-get update -qy && sudo apt-get -y install zip unzip git
+          git config --global user.name 'GITHUB Automated Builder'
+          git config --global user.email 'contact@buildit-consulting.de'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN  }}@github.com/$GITHUB_REPOSITORY
+          rm -rf ./${{ env.PKG_NAME }}
+          rm -rf $EXPORT_NAME
+          echo "CURRENTDATE=$(date "+%Y.%m.%d-%H.%M.%S")" >> $GITHUB_ENV
+          echo "PWD=$(pwd)" >> $GITHUB_ENV
+      - name: Bump Version Patch
+        run: awk -F'["]' -v OFS='"'  '/"version":/{split($4,a,".");$4=a[1]"."a[2]"."a[3]+1};1' ./src/composer.json > ./src/manifest2.json && mv ./src/manifest2.json ./src/composer.json
+      - name: Bump Version Minor
+        if: "contains(github.event.head_commit.message, 'Minor Release')"
+        run: awk -F'["]' -v OFS='"'  '/"version":/{split($4,a,".");$4=a[1]"."a[2]+1"."0};1' ./src/composer.json > ./src/manifest2.json && mv ./src/manifest2.json ./src/composer.json
+      - name: Bump Version Major
+        if: "contains(github.event.head_commit.message, 'Major Release')"
+        run: awk -F'["]' -v OFS='"'  '/"version":/{split($4,a,".");$4=a[1]+1"."0"."0};1' ./src/composer.json > ./src/manifest2.json && mv ./src/manifest2.json ./src/composer.json
+      - name: Build Plugin
+        run: |
+          sudo chmod -R 777 ${{ env.PWD }}/src
+          docker run --rm -e BUILD_PLUGIN=${{ env.NAME }} -v ${{ env.PWD }}/src:/var/www/html/custom/plugins/${{ env.NAME }} dockware/dev:latest
+      - name: get new Version
+        run: echo "VERSION=$(awk '/version/{gsub(/("|",)/,"",$2);print $2};' ./src/composer.json)" >> $GITHUB_ENV
+      - name: Update source
+        run: |
+          mkdir ./${{ env.PKG_NAME }}
+          cp -r ./src/* ./${{ env.PKG_NAME }}
+          zip -r $EXPORT_NAME ./${{ env.PKG_NAME }}
+          git add src/composer.json
+          git commit -m "AutomatedRelease ${{ env.CURRENTDATE }} - Version: ${{ env.VERSION }}"
+          git push origin main
+          git tag -a ${{ env.VERSION }} -m "AutomatedRelease ${{ env.CURRENTDATE }} - Version: ${{ env.VERSION }}"
+          git push origin ${{ env.VERSION }}
+      - name: Release
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{env.EXPORT_NAME}}
+          path: ${{env.EXPORT_NAME}}
+      - uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+          files: |
+            ${{env.EXPORT_NAME}}
+
+
