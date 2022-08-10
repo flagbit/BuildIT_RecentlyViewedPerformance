@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import StorageSingleton from 'src/helper/storage/storage.helper';
-import MemoryStorage from 'src/helper/storage/memory-storage.helper';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 
 export default class RecentlyViewedPlugin extends Plugin {
