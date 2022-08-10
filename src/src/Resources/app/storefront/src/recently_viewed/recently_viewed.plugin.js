@@ -23,9 +23,13 @@ export default class RecentlyViewedPlugin extends Plugin {
 			const link = document.location.href;
 			let price = '';
 			if (document.querySelector('meta[itemprop="lowPrice"]')) {
-				const priceRaw = document.querySelector('meta[itemprop="lowPrice"]').content;
+				const priceRaw = document
+					.querySelector('meta[itemprop="lowPrice"]')
+					.content.replace(/\D/g, '');
 				for (let priceElement of document.querySelectorAll('.product-block-prices-cell div')) {
-					if (priceElement.innerHTML.includes(priceRaw)) {
+					if (priceElement.innerHTML
+							.replace(/\D/g, '')
+							.includes(priceRaw)) {
 						price = this.el.dataset.fromText + ' ' + priceElement.innerHTML.trim();
 					}
 				}
