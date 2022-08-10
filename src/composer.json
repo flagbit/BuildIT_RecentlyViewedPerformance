@@ -29,5 +29,11 @@
         "psr-4": {
             "BuildIT_RecentlyViewedPerformance\\": "src/"
         }
+    },
+    "require": {
+        "shopware/core": "^6.4.0.0"
+    },
+    "require-dev": {
+        "shopware/storefront": "*"
     }
 }
