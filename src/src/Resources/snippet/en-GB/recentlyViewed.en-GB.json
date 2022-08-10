@@ -1,5 +1,8 @@
 {
     "recentlyViewed": {
         "tabHeader": "Recently viewed products"
+    },
+    "cookie": {
+        "recentlyViewed": "Recently viewed products"
     }
 }
