@@ -108,7 +108,7 @@ export default class RecentlyViewedPlugin extends Plugin {
                     <a href="${product.link}">
                         <img src="${product.image}">
                     </a>
-                    <a href="${product.link}" class="product-name" title="${product.name}">
+                    <a href="${product.link}" class="product-name" title="${product.name}" alt="${product.name}" title="${product.name}">
                         ${product.name}
                     </a>
                     <p class="product-price">${product.price}</p>`;
