@@ -12,7 +12,6 @@ export default class RecentlyViewedPlugin extends Plugin {
 
 	setup() {
 		this.storage = StorageSingleton;
-		this.memoryStorage = window.sessionStorage;
 		document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, this.onUpdate.bind(this));
 	}
 
@@ -21,11 +20,12 @@ export default class RecentlyViewedPlugin extends Plugin {
 	}
 
 	addListeners() {
+		if (!this.isCookieAllowed()) {
+			return;
+		}
 		const productMain = document.getElementsByClassName('product-detail');
 		if (productMain.length > 0) {
-			if (!this.isCookieAllowed()) {
-				this.updateView();
-			}
+			this.updateView();
 			const name = document.querySelector('.product-detail-name').innerText;
 			const imageURL = document.querySelector('#tns1-item0')
 				? document.querySelector('#tns1-item0 img').src
@@ -61,22 +61,14 @@ export default class RecentlyViewedPlugin extends Plugin {
 				this.addToStorage(recentlyViewed);
 			}
 
-			if (this.isCookieAllowed()) {
-				this.updateView();
-			}
+			this.updateView();
 		}
 	}
 
 	addToStorage(value) {
-		if (this.isCookieAllowed()) {
-			return value
-				? this.storage.setItem(this.options.storageName, JSON.stringify(value))
-				: this.storage.removeItem(this.options.storageName);
-		} else {
-			return value
-				? this.memoryStorage.setItem(this.options.storageName, JSON.stringify(value))
-				: this.memoryStorage.removeItem(this.options.storageName);
-		}
+		return value
+			? this.storage.setItem(this.options.storageName, JSON.stringify(value))
+			: this.storage.removeItem(this.options.storageName);
 	}
 
 	getFromStorage() {
@@ -84,8 +76,6 @@ export default class RecentlyViewedPlugin extends Plugin {
 		const now = new Date();
 		if (this.isCookieAllowed()) {
 			value = JSON.parse(this.storage.getItem(this.options.storageName));
-		} else {
-			value = JSON.parse(this.memoryStorage.getItem(this.options.storageName));
 		}
 		const checkedValue = value ? value.filter(v => v.expiry >= now.getTime()) : [];
 		if (checkedValue.length < 1) {
@@ -99,13 +89,7 @@ export default class RecentlyViewedPlugin extends Plugin {
 	onUpdate(eventData) {
 		if (eventData.detail[this.options.storageName]) {
 			this.hasCookieAllowed = true;
-			const now = new Date();
-			const currentMemory = JSON.parse(this.memoryStorage.getItem(this.options.storageName));
-			const checkedCurrentMemory = currentMemory ? currentMemory.filter(v => v.expiry >= now.getTime()) : [];
-			if (checkedCurrentMemory.length >= 1) {
-				this.storage.setItem(this.options.storageName, JSON.stringify(currentMemory));
-				this.memoryStorage.removeItem(this.options.storageName);
-			}
+			this.storage.setItem(this.options.storageName, JSON.stringify([]));
 		}
 	}
 
@@ -113,6 +97,10 @@ export default class RecentlyViewedPlugin extends Plugin {
 		const recentlyViewed = this.getFromStorage();
 		if (recentlyViewed && recentlyViewed.length >= 1) {
 			document.querySelector('.buildit_recently_viewed_tabs').style.display = 'block';
+			document
+				.querySelector('.product-detail-recently-viewed-text')
+				.querySelectorAll('*')
+				.forEach(n => n.remove());
 			for (let product of recentlyViewed) {
 				let entry = document.createElement('div');
 				entry.className = 'recently_viewed_wrapper';
