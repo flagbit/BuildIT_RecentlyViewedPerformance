@@ -105,8 +105,8 @@ export default class RecentlyViewedPlugin extends Plugin {
 				let entry = document.createElement('div');
 				entry.className = 'recently_viewed_wrapper';
 				entry.innerHTML = `
-                    <a href="${product.link}">
-                        <img src="${product.image}">
+                    <a href="${product.link}" title="${product.name}" alt="${product.name}" title="${product.name}">
+                        <img src="${product.image}" title="${product.name}" alt="${product.name}" title="${product.name}">
                     </a>
                     <a href="${product.link}" class="product-name" title="${product.name}" alt="${product.name}" title="${product.name}">
                         ${product.name}
