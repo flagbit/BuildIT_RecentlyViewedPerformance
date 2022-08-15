@@ -1,0 +1,27 @@
+{
+    "name": "flagbit/recently-viewed-products",
+    "description": "FlagbitRecentlyViewedProducts",
+    "version": "0.1.0",
+    "authors": [
+        {
+            "name": "Flagbit GmbH & Co. KG"
+        }
+    ],
+    "type": "shopware-platform-plugin",
+    "license": "proprietary",
+    "require": {
+        "store.shopware.com/swagcmsextensions": "^2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flagbit\\RecentlyViewedProducts\\": "src/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "Flagbit\\RecentlyViewedProducts\\FlagbitRecentlyViewedProducts",
+        "label": {
+            "de-DE": "Flagbit Zuletzt Angesehene Produkte",
+            "en-GB": "Flagbit Recently Viewed Products"
+        }
+    }
+}
