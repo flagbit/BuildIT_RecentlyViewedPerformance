@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BuildIT_RecentlyViewedPerformance\Service;
+namespace FlagbitRecentlyViewedProducts\Service;
 
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BuildIT_RecentlyViewedPerformance;
+namespace FlagbitRecentlyViewedProducts;
 
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 
-class BuildIT_RecentlyViewedPerformance extends Plugin
+class FlagbitRecentlyViewedProducts extends Plugin
 {
     public function install(InstallContext $context): void
     {
