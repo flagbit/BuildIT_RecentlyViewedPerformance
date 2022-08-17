@@ -1,27 +1,42 @@
 {
     "name": "flagbit/recently-viewed-products",
-    "description": "FlagbitRecentlyViewedProducts",
+    "description": "Shows recently viewed products - only stored in localStorage",
+    "type": "shopware-platform-plugin",
+    "license": "proprietary",
     "version": "0.1.0",
     "authors": [
+        {
+            "name": "BuildIT Consulting"
+        },
         {
             "name": "Flagbit GmbH & Co. KG"
         }
     ],
-    "type": "shopware-platform-plugin",
-    "license": "proprietary",
-    "require": {
-        "store.shopware.com/swagcmsextensions": "^2.3"
+    "extra": {
+        "shopware-plugin-class": "BuildIT_RecentlyViewedPerformance\\BuildIT_RecentlyViewedPerformance",
+        "author": "BuildIT Consulting",
+        "label": {
+            "de-DE": "Zuletzt angesehenen Produkte",
+            "en-GB": "Recently viewed products"
+        },
+        "description": {
+            "de-DE": "Zeigt die zuletzt angesehenen Produkte - nur in localStorage gespeichert",
+            "en-GB": "Shows recently viewed products - only stored in localStorage"
+        },
+        "manufacturerLink": {
+            "de-DE": "https://store.shopware.com/buildit-consulting.html",
+            "en-GB": "https://store.shopware.com/en/buildit-consulting.html"
+        }
     },
     "autoload": {
         "psr-4": {
-            "Flagbit\\RecentlyViewedProducts\\": "src/"
+            "BuildIT_RecentlyViewedPerformance\\": "src/"
         }
     },
-    "extra": {
-        "shopware-plugin-class": "Flagbit\\RecentlyViewedProducts\\FlagbitRecentlyViewedProducts",
-        "label": {
-            "de-DE": "Flagbit Zuletzt Angesehene Produkte",
-            "en-GB": "Flagbit Recently Viewed Products"
-        }
+    "require": {
+        "shopware/core": "^6.4.0.0"
+    },
+    "require-dev": {
+        "shopware/storefront": "*"
     }
 }

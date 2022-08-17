@@ -1,19 +1,4 @@
-.product-detail-recently-viewed-text {
-	display: flex;
-	justify-content: space-evenly;
-	margin: 1rem 0.25rem 1.5rem 0.25rem;
-	.recently_viewed_wrapper {
-		max-width: 15%;
-		text-align: center;
-		img {
-			width: 100%;
-		}
-        p{
-            font-weight: normal;
-            font-size: 1rem;
-        }
-	}
-}
-.buildit_recently_viewed_tabs{
+.flagbit-recently-viewed-products{
 	display: none;
+	padding: 64px 0;
 }

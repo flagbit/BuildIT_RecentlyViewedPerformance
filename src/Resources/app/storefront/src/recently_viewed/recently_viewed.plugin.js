@@ -20,13 +20,24 @@ export default class RecentlyViewedPlugin extends Plugin {
 	}
 
 	addListeners() {
+		/*
 		if (!this.isCookieAllowed()) {
 			return;
 		}
+		*/
 		const productMain = document.getElementsByClassName('product-detail');
 		if (productMain.length > 0) {
 			this.updateView();
-			const name = document.querySelector('.product-detail-name').innerText;
+			let name = '';
+			if(document.querySelector('.product-detail-name')){
+				name = document.querySelector('.product-detail-name').innerText;
+			}else{
+				name = document.querySelector('.product-detail-headline').innerText;
+			}
+			let flavour = '';
+			if(document.querySelector('.product-detail-configurator-select-input')){
+				flavour = document.querySelector('.product-detail-configurator-select-input option[selected="selected"]').innerText;
+			}
 			const imageURL = document.querySelector('#tns1-item0')
 				? document.querySelector('#tns1-item0 img').src
 				: document.querySelector('.product-detail-media img').src;
@@ -42,9 +53,11 @@ export default class RecentlyViewedPlugin extends Plugin {
 			} else {
 				price = document.querySelector('.product-detail-price').innerText;
 			}
+
 			const now = new Date();
 			const obj = {
 				name: name,
+				flavour: flavour,
 				image: imageURL,
 				link: link,
 				price: price,
@@ -54,7 +67,7 @@ export default class RecentlyViewedPlugin extends Plugin {
 			const recentlyViewed = this.getFromStorage() || [];
 			const exists = recentlyViewed.filter(r => r.name === name).length > 0;
 			if (!exists || (exists && recentlyViewed.at(-1).name !== name)) {
-				if (recentlyViewed.length >= 5) {
+				if (recentlyViewed.length >= 12) {
 					recentlyViewed.shift();
 				}
 				recentlyViewed.push(obj);
@@ -96,26 +109,49 @@ export default class RecentlyViewedPlugin extends Plugin {
 	updateView() {
 		const recentlyViewed = this.getFromStorage();
 		if (recentlyViewed && recentlyViewed.length >= 1) {
-			document.querySelector('.buildit_recently_viewed_tabs').style.display = 'block';
+			document.querySelector('.flagbit-recently-viewed-products').style.display = 'block';
 			document
-				.querySelector('.product-detail-recently-viewed-text')
+				.querySelector('.recently-viewed-products-slider .swiper-wrapper')
 				.querySelectorAll('*')
 				.forEach(n => n.remove());
-			for (let product of recentlyViewed) {
+			for (let product of recentlyViewed.reverse()) {
 				let entry = document.createElement('div');
-				entry.className = 'recently_viewed_wrapper';
+				entry.className = 'recently-viewed-products-slide products-slider-slide swiper-slide';
 				entry.innerHTML = `
-                    <a href="${product.link}" title="${product.name}" alt="${product.name}" title="${product.name}">
-                        <img src="${product.image}" title="${product.name}" alt="${product.name}" title="${product.name}">
-                    </a>
-                    <a href="${product.link}" class="product-name" title="${product.name}" alt="${product.name}" title="${product.name}">
-                        ${product.name}
-                    </a>
-                    <p class="product-price">${product.price}</p>`;
-				document.querySelector('.product-detail-recently-viewed-text').appendChild(entry);
+				<div class="slide-content">
+					<div class="card product-box box-standard">
+						<div class="card-body">
+							<div class="product-image-wrapper">
+								<a href="${product.link}" title="${product.name}" class="product-image-link is-standard">
+									<img src="${product.image}" alt="${product.name}" title="${product.name}" loading="lazy" />
+								</a>
+							</div>
+							<div class="product-info">
+								<div class="header">
+									<a href="${product.link}" class="product-name h4" title="${product.name}">
+										${product.name}
+									</a>
+									<div class="product-variant-characteristics">
+                                        <div class="product-variant-characteristics-text">
+                                            <span class="product-variant-characteristics-option">${product.flavour}</span>
+                                        </div>
+                                    </div>
+								</div>
+								<div class="footer">
+									<div class="product-price-info">
+										<div class="product-price-wrapper">
+											<span class="h4 product-price">${product.price}</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>`;
+				document.querySelector('.recently-viewed-products-slider .swiper-wrapper').appendChild(entry);
 			}
 		} else {
-			document.querySelector('.buildit_recently_viewed_tabs').style.display = 'none';
+			document.querySelector('.flagbit-recently-viewed-products').style.display = 'none';
 		}
 	}
 }

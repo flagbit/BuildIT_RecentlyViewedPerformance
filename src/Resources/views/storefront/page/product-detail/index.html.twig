@@ -1,0 +1,71 @@
+{% sw_extends "@Storefront/storefront/page/product-detail/index.html.twig" %}
+{% block page_product_detail %}
+    {{ parent() }}
+
+    {% block flagbit_recently_viewed_products %}
+        <div class="flagbit-recently-viewed-products sw-cms-block-products-slider-wrapper">
+            <h2 class="text-center">{{ 'recentlyViewed.tabHeader' | trans | sw_sanitize }}</h2>
+            <div class="recently-viewed-products-slider cms-element-products-slider fs-slider swiper"
+                x-data="{ isSwiperLoaded: false, swiper: null }"
+                x-init="swiper = new Swiper($el, {
+                    spaceBetween: 24,
+                    preloadImages: false,
+                    lazy: true,
+                    speed: 1000,
+                    navigation: {
+                        nextEl: '.slider-arrow-next',
+                        prevEl: '.slider-arrow-previous',
+                    },
+                    breakpoints: {
+                        {{ theme_config('breakpoint.lg') }}: {
+                            slidesPerView: 4,
+                            slidesPerGroup: 4,
+                            spaceBetween: 0,
+                            loop: false,
+                        },
+                        {{ theme_config('breakpoint.md') }}: {
+                            slidesPerView: 3,
+                            slidesPerGroup: 3,
+                            spaceBetween: 0,
+                            loop: false,
+                        },
+                        {{ theme_config('breakpoint.sm') }}: {
+                            slidesPerView: 2,
+                            slidesPerGroup: 2,
+                            spaceBetween: 0,
+                            loop: false,
+                        },
+                        {{ theme_config('breakpoint.xs') }}: {
+                            slidesPerView: 1,
+                            slidesPerGroup: 1,
+                            spaceBetween: 0,
+                            loop: true,
+                        },
+                    },
+                    on: {
+                        init: () => {
+                                isSwiperLoaded = true;
+                            },
+                        },
+                    })">
+                <div class="swiper-wrapper" x-show="isSwiperLoaded" x-cloak>
+                    
+                </div>
+                <div class="slider-arrow-previous" x-show="isSwiperLoaded" x-cloak>
+                    {% sw_icon 'icon-chevron-left' style {
+                            'pack': 'foodspring-icons',
+                            'size': 'md', 
+                            'class': 'with-hover fill-none'
+                    } %}
+                </div>
+                <div class="slider-arrow-next" x-show="isSwiperLoaded" x-cloak>
+                    {% sw_icon 'icon-chevron-right' style {
+                            'pack': 'foodspring-icons',
+                            'size': 'md', 
+                            'class': 'with-hover fill-none'
+                    } %}
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}
