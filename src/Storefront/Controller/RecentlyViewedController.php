@@ -31,7 +31,7 @@ class RecentlyViewedController extends StorefrontController
 
         return $this->renderStorefront(
             '@Storefront/storefront/component/product/recently-viewed/tabs-slider.html.twig',
-            ['page' => $page, 'item' => $page]
+            ['page' => $page]
         );
     }
 }

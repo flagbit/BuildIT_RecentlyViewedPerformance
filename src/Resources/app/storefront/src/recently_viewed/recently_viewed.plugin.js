@@ -134,10 +134,14 @@ export default class RecentlyViewedPlugin extends Plugin {
 		}
 	}
 
-	callback(widgetResponse) {
-		const element = document.getElementById('flagbit-recently-viewed-products-container');
-		if (element) {
-			element.innerHTML = widgetResponse;
+	callback(widgetResponse, request) {
+		if (request.status === 200) {
+			const element = document.getElementById('flagbit-recently-viewed-products-container');
+			if (element) {
+				element.innerHTML = widgetResponse;
+			}
+		} else {
+			console.error('Recently Viewed Products Slider Error ' + request.status);
 		}
 	}
 }
