@@ -69,7 +69,7 @@ export default class RecentlyViewedPlugin extends Plugin {
 			});
 		}
 
-		if (recentlyViewed.length >= this.options.maxAmount) {f
+		if (recentlyViewed.length >= this.options.maxAmount) {
 			recentlyViewed.shift();
 		}
 
