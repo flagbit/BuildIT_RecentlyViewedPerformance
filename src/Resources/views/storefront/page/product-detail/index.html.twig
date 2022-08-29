@@ -3,7 +3,7 @@
     {{ parent() }}
 
     {% set recentlyViewedOptions = {
-        product: page.product.id,
+        product: page.product,
         csrfToken: sw_csrf("flagbit.recentlyviewed.widget", {"mode": "token"})
     } %}
 

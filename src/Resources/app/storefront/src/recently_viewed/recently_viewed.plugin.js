@@ -39,21 +39,33 @@ export default class RecentlyViewedPlugin extends Plugin {
 		this.initViewUpdate();
 	}
 
-	addProductToStorage(product) {
+	createNewStorageObj(product) {
 		const now = new Date();
-		const obj = {
-			id: product,
+
+		return {
+			id: product.parentId || product.id,
 			expiry: now.getTime() + this.options.ttl,
 		};
-		const recentlyViewed = this.getFromStorage() || [];
-		const exists = recentlyViewed.filter(r => r.name === name).length > 0;
-		if (!exists || (exists && recentlyViewed.at(-1).name !== name)) {
-			if (recentlyViewed.length >= this.options.maxAmount) {
-				recentlyViewed.shift();
-			}
-			recentlyViewed.push(obj);
-			this.addToStorage(recentlyViewed);
+	}
+
+	addProductToStorage(product) {
+		const obj = this.createNewStorageObj(product);
+		const recentlyViewed = this.getFromStorage();
+
+		const exists = recentlyViewed.findIndex(r => r.id === obj.id);
+
+		// remove current always, so we can add it again at last index
+		// Keep in mind that the array is reversed. index 0 is the oldest!
+		if (exists >= 0) {
+			recentlyViewed.splice(exists, 1);
 		}
+
+		if (recentlyViewed.length >= this.options.maxAmount) {
+			recentlyViewed.shift();
+		}
+
+		recentlyViewed.push(obj);
+		this.addToStorage(recentlyViewed);
 	}
 
 	addToStorage(value) {
@@ -73,7 +85,7 @@ export default class RecentlyViewedPlugin extends Plugin {
 			this.addToStorage(null);
 			return [];
 		} else {
-			return value;
+			return value || [];
 		}
 	}
 
