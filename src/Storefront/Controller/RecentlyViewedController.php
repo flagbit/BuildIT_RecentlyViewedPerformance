@@ -30,7 +30,7 @@ class RecentlyViewedController extends StorefrontController
         $page = $this->recentlyViewedWidgetLoader->load($request, $context);
 
         return $this->renderStorefront(
-            '@FoodspringTheme/storefront/page/product-detail/cross-selling/tabs-slider.html.twig',
+            '@Storefront/storefront/component/product/recently-viewed/tabs-slider.html.twig',
             ['page' => $page, 'item' => $page]
         );
     }

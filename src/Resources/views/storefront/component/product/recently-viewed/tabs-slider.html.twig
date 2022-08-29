@@ -1,0 +1,21 @@
+{% block recently_viewed_slider %}
+    <div class="cms-element-products-slider">
+        {% block recently_viewed_slider_slides %}
+            {% set slidesData = page.getProducts() %}
+            {% for slide in slidesData %}
+                <div class="swiper-slide">
+                    {% sw_include "@Storefront/storefront/component/product/card/box.html.twig" with {
+                        product: slide,
+                        variants,
+                        layout: 'standard-no-badge',
+                        buyButtonText: "product.addToCartCrossSell"|trans|sw_sanitize,
+                        buyButtonIcon: 'icon-left-plus',
+                        buyButtonType: 'primary',
+                        showDescription: false,
+                        isSlider: true
+                    } %}
+                </div>
+            {% endfor %}
+        {% endblock %}
+    </div>
+{% endblock %}
