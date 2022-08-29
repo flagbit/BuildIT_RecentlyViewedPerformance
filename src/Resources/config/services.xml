@@ -4,5 +4,20 @@
         <service id="BuildIT_RecentlyViewedPerformance\Service\RecentlyViewedCookieProvider" decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
             <argument type="service" id="BuildIT_RecentlyViewedPerformance\Service\RecentlyViewedCookieProvider.inner" />
         </service>
+
+        <service id="BuildIT_RecentlyViewedPerformance\Storefront\Controller\RecentlyViewedController" public="true">
+            <argument type="service" id="BuildIT_RecentlyViewedPerformance\Storefront\Page\RecentlyViewedWidgetLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="BuildIT_RecentlyViewedPerformance\Storefront\Page\RecentlyViewedWidgetLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+        </service>
+
+
+        <service id="BuildIT_RecentlyViewedPerformance\Storefront\Page\RecentlyViewedWidget" />
     </services>
 </container>

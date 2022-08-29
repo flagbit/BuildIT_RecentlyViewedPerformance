@@ -1,11 +1,20 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import StorageSingleton from 'src/helper/storage/storage.helper';
+import HttpClient from 'src/service/http-client.service';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 
 export default class RecentlyViewedPlugin extends Plugin {
-	static options = { storageName: 'buildit_recently_viewed_storage', ttl: 86400000, isCookieAllowed: false };
+	static options = {
+		storageName: 'buildit_recently_viewed_storage',
+		ttl: 86400000,
+		isCookieAllowed: false,
+		product: null,
+		maxAmount: 12,
+		csrfToken: '',
+	};
 
 	init() {
+		this._client = new HttpClient();
 		this.setup();
 		this.addListeners();
 	}
@@ -20,61 +29,30 @@ export default class RecentlyViewedPlugin extends Plugin {
 	}
 
 	addListeners() {
-		/*
-		if (!this.isCookieAllowed()) {
-			return;
-		}
-		*/
 		const productMain = document.getElementsByClassName('product-detail');
 		if (productMain.length > 0) {
-			this.updateView();
-			let name = '';
-			if(document.querySelector('.product-detail-name')){
-				name = document.querySelector('.product-detail-name').innerText;
-			}else{
-				name = document.querySelector('.product-detail-headline').innerText;
+			if (this.options.product) {
+				this.addProductToStorage(this.options.product)
 			}
-			let flavour = '';
-			if(document.querySelector('.product-detail-configurator-select-input')){
-				flavour = document.querySelector('.product-detail-configurator-select-input option[selected="selected"]').innerText;
-			}
-			const imageURL = document.querySelector('#tns1-item0')
-				? document.querySelector('#tns1-item0 img').src
-				: document.querySelector('.product-detail-media img').src;
-			const link = document.location.href;
-			let price = '';
-			if (document.querySelector('meta[itemprop="lowPrice"]')) {
-				const priceRaw = document.querySelector('meta[itemprop="lowPrice"]').content.replace(/\D/g, '');
-				for (let priceElement of document.querySelectorAll('.product-block-prices-cell div')) {
-					if (priceElement.innerHTML.replace(/\D/g, '').includes(priceRaw)) {
-						price = this.el.dataset.fromText + ' ' + priceElement.innerHTML.trim();
-					}
-				}
-			} else {
-				price = document.querySelector('.product-detail-price').innerText;
-			}
+		}
 
-			const now = new Date();
-			const obj = {
-				name: name,
-				flavour: flavour,
-				image: imageURL,
-				link: link,
-				price: price,
-				expiry: now.getTime() + this.options.ttl,
-			};
+		this.initViewUpdate();
+	}
 
-			const recentlyViewed = this.getFromStorage() || [];
-			const exists = recentlyViewed.filter(r => r.name === name).length > 0;
-			if (!exists || (exists && recentlyViewed.at(-1).name !== name)) {
-				if (recentlyViewed.length >= 12) {
-					recentlyViewed.shift();
-				}
-				recentlyViewed.push(obj);
-				this.addToStorage(recentlyViewed);
+	addProductToStorage(product) {
+		const now = new Date();
+		const obj = {
+			id: product,
+			expiry: now.getTime() + this.options.ttl,
+		};
+		const recentlyViewed = this.getFromStorage() || [];
+		const exists = recentlyViewed.filter(r => r.name === name).length > 0;
+		if (!exists || (exists && recentlyViewed.at(-1).name !== name)) {
+			if (recentlyViewed.length >= this.options.maxAmount) {
+				recentlyViewed.shift();
 			}
-
-			this.updateView();
+			recentlyViewed.push(obj);
+			this.addToStorage(recentlyViewed);
 		}
 	}
 
@@ -106,52 +84,39 @@ export default class RecentlyViewedPlugin extends Plugin {
 		}
 	}
 
-	updateView() {
+	requestWidget(recentlyViewed) {
+		const pIds = [];
+		for (const product of recentlyViewed) {
+			pIds.push(product.id);
+		}
+
+		const params = {
+			products: pIds
+		};
+
+		if (window.csrf.enabled && window.csrf.mode === 'twig') {
+			params['_csrf_token'] = this.options.csrfToken;
+		}
+
+		this._client.post(
+			`/widget/recentlyviewed`,
+			JSON.stringify(params),
+			this.callback.bind(this),
+		);
+	}
+
+	initViewUpdate() {
 		const recentlyViewed = this.getFromStorage();
+
 		if (recentlyViewed && recentlyViewed.length >= 1) {
-			document.querySelector('.flagbit-recently-viewed-products').style.display = 'block';
-			document
-				.querySelector('.recently-viewed-products-slider .swiper-wrapper')
-				.querySelectorAll('*')
-				.forEach(n => n.remove());
-			for (let product of recentlyViewed.reverse()) {
-				let entry = document.createElement('div');
-				entry.className = 'recently-viewed-products-slide products-slider-slide swiper-slide';
-				entry.innerHTML = `
-				<div class="slide-content">
-					<div class="card product-box box-standard">
-						<div class="card-body">
-							<div class="product-image-wrapper">
-								<a href="${product.link}" title="${product.name}" class="product-image-link is-standard">
-									<img src="${product.image}" alt="${product.name}" title="${product.name}" loading="lazy" />
-								</a>
-							</div>
-							<div class="product-info">
-								<div class="header">
-									<a href="${product.link}" class="product-name h4" title="${product.name}">
-										${product.name}
-									</a>
-									<div class="product-variant-characteristics">
-                                        <div class="product-variant-characteristics-text">
-                                            <span class="product-variant-characteristics-option">${product.flavour}</span>
-                                        </div>
-                                    </div>
-								</div>
-								<div class="footer">
-									<div class="product-price-info">
-										<div class="product-price-wrapper">
-											<span class="h4 product-price">${product.price}</span>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>`;
-				document.querySelector('.recently-viewed-products-slider .swiper-wrapper').appendChild(entry);
-			}
-		} else {
-			document.querySelector('.flagbit-recently-viewed-products').style.display = 'none';
+			this.requestWidget(recentlyViewed);
+		}
+	}
+
+	callback(widgetResponse) {
+		const element = document.getElementById('flagbit-recently-viewed-products-container');
+		if (element) {
+			element.innerHTML = widgetResponse;
 		}
 	}
 }
