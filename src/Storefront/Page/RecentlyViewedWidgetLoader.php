@@ -31,7 +31,7 @@ class RecentlyViewedWidgetLoader
         $page->setProducts([]);
 
         $products = $request->request->get('products');
-        if (is_array($products) && count($products) > 0) {
+        if (\is_array($products) && \count($products) > 0) {
             $criteria = new Criteria($products);
             $productsResponse = $this->productRepository->search($criteria, $salesChannelContext);
             $productsResponse->sortByIdArray(array_reverse((array) $products));

@@ -8,14 +8,6 @@ use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 
 class RecentlyViewedCookieProvider implements CookieProviderInterface
 {
-
-    private CookieProviderInterface $originalService;
-
-    public function __construct(CookieProviderInterface $service)
-    {
-        $this->originalService = $service;
-    }
-
     // cookies can also be provided as a group
     private const cookieGroup = [
         'snippet_name' => 'cookie.groupComfortFeatures',
@@ -24,10 +16,17 @@ class RecentlyViewedCookieProvider implements CookieProviderInterface
                 'snippet_name' => 'cookie.recentlyViewed',
                 'cookie' => 'buildit_recently_viewed_storage',
                 'value' => '',
-                'expiration' => '1'
-            ]
+                'expiration' => '1',
+            ],
         ],
     ];
+
+    private CookieProviderInterface $originalService;
+
+    public function __construct(CookieProviderInterface $service)
+    {
+        $this->originalService = $service;
+    }
 
     public function getCookieGroups(): array
     {
@@ -35,7 +34,6 @@ class RecentlyViewedCookieProvider implements CookieProviderInterface
 
         foreach ($cookieGroups as $index => $cookieGroup) {
             if ($cookieGroup['snippet_name'] === self::cookieGroup['snippet_name']) {
-
                 foreach (self::cookieGroup['entries'] as $entry) {
                     $cookieGroups[$index]['entries'][] = $entry;
                 }
