@@ -30,37 +30,46 @@ export default class RecentlyViewedPlugin extends Plugin {
 
 	addListeners() {
 		const productMain = document.getElementsByClassName('product-detail');
+
+		this.initViewUpdate();
+
 		if (productMain.length > 0) {
 			if (this.options.product) {
 				this.addProductToStorage(this.options.product)
 			}
 		}
-
-		this.initViewUpdate();
 	}
 
 	createNewStorageObj(product) {
 		const now = new Date();
 
 		return {
-			id: product.parentId || product.id,
+			id: product.id,
+			parentId: product.parentId || null,
 			expiry: now.getTime() + this.options.ttl,
 		};
 	}
 
 	addProductToStorage(product) {
 		const obj = this.createNewStorageObj(product);
-		const recentlyViewed = this.getFromStorage();
+		let recentlyViewed = this.getFromStorage();
 
-		const exists = recentlyViewed.findIndex(r => r.id === obj.id);
+		const existIdx = recentlyViewed.findIndex(r => r.id === obj.id);
 
 		// remove current always, so we can add it again at last index
 		// Keep in mind that the array is reversed. index 0 is the oldest!
-		if (exists >= 0) {
-			recentlyViewed.splice(exists, 1);
+		if (existIdx >= 0) {
+			recentlyViewed.splice(existIdx, 1);
 		}
 
-		if (recentlyViewed.length >= this.options.maxAmount) {
+		// same as above, but for parent
+		if (obj.parentId !== null) {
+			recentlyViewed = recentlyViewed.filter(r => {
+				return r.parentId !== obj.parentId
+			});
+		}
+
+		if (recentlyViewed.length >= this.options.maxAmount) {f
 			recentlyViewed.shift();
 		}
 
